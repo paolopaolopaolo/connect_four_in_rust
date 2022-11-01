@@ -17,9 +17,9 @@ pub enum CellState {
 impl fmt::Display for CellState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let printout = match &self {
-            CellState::Empty => "_",
-            CellState::X => "X",
-            CellState::O => "O"
+            CellState::Empty => "🟦",
+            CellState::X => "🟡",
+            CellState::O => "🔴"
         };
         write!(f, "{}", printout)
     }
@@ -33,13 +33,18 @@ impl CellState {
 
 pub struct Gameboard {
     board: [[CellState; 6]; 5],
+    display_columns: bool 
 }
 
 impl fmt::Display for Gameboard {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let start_string = match self.display_columns {
+            true => String::from("\t0️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣\n"),
+            false => String::from(""),
+        };
         let printout = self.board.iter()
-            .fold(String::from("\t0 1 2 3 4 5\n"), |acc, next| acc + &format!("\t{}\n", next.iter().fold(
-                String::from(""), |acc, next| acc + &format!("{} ", next).as_str()
+            .fold(start_string, |acc, next| acc + &format!("\t{}\n", next.iter().fold(
+                String::from(""), |acc, next| acc + &format!("{}", next).as_str()
             )).as_str());
         write!(f, "{}", printout)
     }
@@ -55,13 +60,28 @@ impl Gameboard {
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
-            ]
+            ],
+            display_columns: true
+        }
+    }
+
+    pub fn four() -> Gameboard {
+        Gameboard {
+            board: [
+                [CellState::Empty, CellState::Empty, CellState::X,     CellState::Empty, CellState::O, CellState::Empty],
+                [CellState::Empty, CellState::O,     CellState::Empty, CellState::Empty, CellState::X, CellState::Empty],
+                [CellState::O,     CellState::X,     CellState::O,     CellState::X,     CellState::O, CellState::X],
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::X, CellState::Empty],
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::O, CellState::Empty],
+            ],
+            display_columns: false
         }
     }
 
     pub fn from(board: [[CellState; 6]; 5]) -> Gameboard {
         Gameboard {
-            board: board
+            board: board,
+            display_columns: true
         }
     }
 
@@ -163,19 +183,20 @@ impl Gameboard {
     }
 
     pub fn place_piece(&mut self, x: i64, player: &CellState) -> bool {
+
+        if x > 5 || x < 0 {
+            return false;
+        }
         // check if there are any open spaces
         let mut result = false;
         for row in [4, 3, 2, 1, 0] {
-            println!("x: {}, y: {}", x, row);
             if self.piece_at(x, row).value() == CellState::Empty.value() {
-                println!("Empty found! Placing...");
                 let piece_to_place = match player {
                     CellState::X => CellState::X,
                     CellState::O => CellState::O,
                     _ => return false,
                 };
                 self.board[row as usize][x as usize] = piece_to_place;
-                println!("new board\n{}", self);
                 result = true;
                 break;
             } 
@@ -185,7 +206,7 @@ impl Gameboard {
 
     pub fn is_winner(&self, player: &CellState) -> bool {
         let mut cursor: (i64, i64) = (0, 4);
-        while cursor.0 < 5 {
+        while cursor.0 < 6 {
             while cursor.1 > 0 {
                 let player_at_cursor = self.piece_at(cursor.0, cursor.1);
                 if player.value() == player_at_cursor.value() {
@@ -207,6 +228,7 @@ impl Gameboard {
                 cursor.1 -= 1;
             }
             cursor.0 += 1;
+            cursor.1 = 4; // reset to bottom
         }
         return false;
     }

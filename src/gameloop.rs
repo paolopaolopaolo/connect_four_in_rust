@@ -8,20 +8,34 @@
 * 
 **/
 
-mod gameboard;
+pub mod gameboard;
 use gameboard::Gameboard;
 use gameboard::CellState;
-use std::io;
+use std::io::{self, Write};
 
 fn turn_decider(current_player: &CellState) -> CellState {
-    println!("<< new turn >>");
-    println!("current_player: {}", current_player);
-    println!("CellState::X: {}", CellState::X);
     if current_player.value() == CellState::X.value() {
-        println!("<< turn swapped >>");
         return CellState::O;
     } else {
         return CellState::X;
+    }
+}
+
+fn select_column (game_board: &Gameboard, current_player: &CellState, clear_all: fn(), error: &String) -> i64 {
+    clear_all();
+    if error != &String::new() {
+        println!("\t{}", error);
+    }
+    println!("{}", game_board);
+    print!("\t{}'s turn! Pick a column. > ", current_player);
+    io::stdout().flush().unwrap();
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Error");
+    let column = input.trim().parse();
+    if column.is_err() {
+        return select_column(&game_board, &current_player, clear_all, &String::from("Input is invalid. Input a NUMBER between 0 and 5!\n"));
+    } else {
+        return column.unwrap();
     }
 }
 
@@ -32,27 +46,26 @@ pub fn start_gameloop(clear_all: fn()) {
     let mut winner: String = String::from(""); 
     let mut current_player = CellState::X;
     while !end_game {
-        println!("{}", game_board);
-        println!("{}'s turn! Pick a column. >", current_player);
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).expect("Error");
-        let mut column = input.trim().parse().unwrap();
-        println!("column selected: {}", column);
+        let mut column = select_column(&game_board, &current_player, clear_all, &String::new());
         while !game_board.place_piece(column, &current_player) {
-            clear_all();
-            println!("{}", game_board);
-            println!("{}'s turn! Pick a column. >", current_player);
-            io::stdin().read_line(&mut input).expect("Error");
-            column = input.trim().parse().unwrap();
+            column = select_column(&game_board, &current_player, clear_all, &String::from("Invalid column. Pick a value FROM 0 TO 5!\n"));
         }
         if (game_board.is_winner(&current_player)) {
-            end_game=true;
+            end_game = true;
             winner = format!("{}", current_player);
+            println!("winner found");
+        } else {
+            current_player = turn_decider(&current_player);
         }
-        current_player = turn_decider(&current_player);
-
         clear_all();
     }
     println!("{}", game_board);
-    println!("\t\t{} WINS!!!", winner);
+    println!("\t{} WINS!!!", winner);
+    print!("\tPlay again? (Y/N) > ");
+    io::stdout().flush().unwrap();
+    let mut again = String::new();
+    io::stdin().read_line(&mut again).expect("Error");
+    if String::from(again.trim()).as_str() == String::from("Y").as_str() {
+        start_gameloop(clear_all);
+    }
 }
