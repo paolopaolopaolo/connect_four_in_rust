@@ -75,20 +75,13 @@ impl Gameboard {
     pub fn four() -> Gameboard {
         Gameboard {
             board: [
-                [CellState::Empty, CellState::Empty, CellState::X,     CellState::Empty, CellState::O, CellState::Empty],
-                [CellState::Empty, CellState::O,     CellState::Empty, CellState::Empty, CellState::X, CellState::Empty],
-                [CellState::O,     CellState::X,     CellState::O,     CellState::X,     CellState::O, CellState::X],
-                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::X, CellState::Empty],
-                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::O, CellState::Empty],
+                [CellState::Empty, CellState::Empty, CellState::X,     CellState::O, CellState::Empty, CellState::Empty],
+                [CellState::Empty, CellState::O,     CellState::Empty, CellState::X, CellState::Empty, CellState::Empty],
+                [CellState::O,     CellState::X,     CellState::O,     CellState::X,     CellState::O, CellState::Empty],
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::O, CellState::Empty, CellState::Empty],
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::X, CellState::Empty, CellState::Empty],
             ],
             display_columns: false
-        }
-    }
-
-    pub fn from(board: [[CellState; 6]; 5]) -> Gameboard {
-        Gameboard {
-            board: board,
-            display_columns: true
         }
     }
 
@@ -190,7 +183,6 @@ impl Gameboard {
     }
 
     pub fn place_piece(&mut self, x: i64, player: &CellState) -> bool {
-
         if x > 5 || x < 0 {
             return false;
         }
