@@ -77,7 +77,7 @@ impl Gameboard {
             board: [
                 [CellState::Empty, CellState::Empty, CellState::X,     CellState::O, CellState::Empty, CellState::Empty],
                 [CellState::Empty, CellState::O,     CellState::Empty, CellState::X, CellState::Empty, CellState::Empty],
-                [CellState::O,     CellState::X,     CellState::O,     CellState::X,     CellState::O, CellState::Empty],
+                [CellState::O,     CellState::X,     CellState::O,     CellState::X, CellState::O,     CellState::Empty],
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::O, CellState::Empty, CellState::Empty],
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::X, CellState::Empty, CellState::Empty],
             ],
