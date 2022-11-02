@@ -25,6 +25,8 @@ fn select_column (game_board: &Gameboard, current_player: &CellState, clear_all:
     clear_all();
     if error != &String::new() {
         println!("\t{}", error);
+    } else {
+        println!("\n");
     }
     println!("{}", game_board);
     print!("\t{}'s turn! Pick a column. > ", current_player);
@@ -50,22 +52,24 @@ pub fn start_gameloop(clear_all: fn()) {
         while !game_board.place_piece(column, &current_player) {
             column = select_column(&game_board, &current_player, clear_all, &String::from("Invalid column. Pick a value FROM 0 TO 5!\n"));
         }
-        if (game_board.is_winner(&current_player)) {
+        if game_board.is_winner(&current_player) {
             end_game = true;
             winner = format!("{}", current_player);
-            println!("winner found");
+        } else if game_board.is_full() {
+            end_game = true;
+            winner = String::from("Nobody");
         } else {
             current_player = turn_decider(&current_player);
         }
         clear_all();
     }
-    println!("{}", game_board);
+    println!("\n\n{}", game_board);
     println!("\t{} WINS!!!", winner);
     print!("\tPlay again? (Y/N) > ");
     io::stdout().flush().unwrap();
     let mut again = String::new();
     io::stdin().read_line(&mut again).expect("Error");
-    if String::from(again.trim()).as_str() == String::from("Y").as_str() {
+    if String::from(again.trim().to_lowercase()).as_str() == String::from("y").as_str() {
         start_gameloop(clear_all);
     }
 }

@@ -8,6 +8,8 @@
 
 use std::fmt;
 
+
+
 pub enum CellState {
     X,
     O,
@@ -29,6 +31,11 @@ impl CellState {
     pub fn value(&self) -> String {
         format!("{}", self)
     }
+}
+
+fn is_row_full(row: &[CellState; 6]) -> bool {
+    row.iter()
+        .fold(true, |acc, next| acc && next.value() != CellState::Empty.value())
 }
 
 pub struct Gameboard {
@@ -202,6 +209,12 @@ impl Gameboard {
             } 
         }
         return result;
+    }
+
+    pub fn is_full(&self) -> bool {
+        self.board
+            .iter()
+            .fold(true, |acc, next| acc && is_row_full(&next))
     }
 
     pub fn is_winner(&self, player: &CellState) -> bool {
