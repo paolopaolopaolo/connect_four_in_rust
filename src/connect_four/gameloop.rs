@@ -8,9 +8,8 @@
 * 
 **/
 
-pub mod gameboard;
-use gameboard::Gameboard;
-use gameboard::CellState;
+use super::gameboard::{Gameboard, CellState};
+use super::utility::clear_all;
 use std::io::{self, Write};
 
 fn turn_decider(current_player: &CellState) -> CellState {
@@ -41,7 +40,7 @@ fn select_column (game_board: &Gameboard, current_player: &CellState, clear_all:
     }
 }
 
-pub fn start_gameloop(clear_all: fn()) {
+pub fn start_gameloop() {
     clear_all();
     let mut game_board = Gameboard::new();
     let mut end_game = false;
@@ -70,6 +69,6 @@ pub fn start_gameloop(clear_all: fn()) {
     let mut again = String::new();
     io::stdin().read_line(&mut again).expect("Error");
     if String::from(again.trim().to_lowercase()).as_str() == String::from("y").as_str() {
-        start_gameloop(clear_all);
+        start_gameloop();
     }
 }

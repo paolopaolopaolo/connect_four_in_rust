@@ -1,5 +1,12 @@
 use std::io;
-pub fn start_sequence(clear_all: fn(), show_board: fn() -> String) {
+use super::utility::clear_all;
+use super::gameboard::Gameboard;
+
+fn four_board () -> String {
+    format!("{}", Gameboard::four()).to_string()
+}
+
+pub fn start_sequence() {
     clear_all();
     println!("||||| ||||| |\\   | |\\   | ||||| |||||  |||||");
     println!("|     |   | | \\  | | \\  | |___  |        |  ");
@@ -12,7 +19,7 @@ pub fn start_sequence(clear_all: fn(), show_board: fn() -> String) {
     println!("\t|     ||||| |||||| |    |");
     println!("");
     println!("");
-    println!("{}", show_board());
+    println!("{}", four_board());
     println!("");
     println!("");
     println!("> Press Enter to Continue");

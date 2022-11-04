@@ -1,18 +1,10 @@
 
-mod intro;
-mod gameloop;
-mod utility;
+mod connect_four;
 
-use intro::start_sequence;
-use gameloop::start_gameloop;
-use gameloop::gameboard::Gameboard;
-use utility::clear_all;
-
-fn four_board () -> String {
-    format!("{}", Gameboard::four()).to_string()
-}
+use connect_four::intro::start_sequence;
+use connect_four::gameloop::start_gameloop;
 
 fn main() {
-    start_sequence(clear_all, four_board);
-    start_gameloop(clear_all);
+    start_sequence();
+    start_gameloop();
 }
