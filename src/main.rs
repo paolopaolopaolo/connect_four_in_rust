@@ -38,9 +38,9 @@ fn board_render_thread (rx: Receiver<Message>) -> JoinHandle<(crossterm::Result<
             }
             print_board(&gameboard).unwrap();
             if gameboard.is_winner(&CellState::O) {
-                println!("{} wins! Press q to quit.\r\nPress n for new game.", CellState::O);
+                println!("{} wins!", CellState::O);
             } else if gameboard.is_winner(&CellState::X) {
-                println!("{} wins! Press q to quit.\r\nPress n for new game.", CellState::X);
+                println!("{} wins!", CellState::X);
             }
             else if gameboard.is_full() {
                 println!("Nobody won. Drop another piece to start a new game.");

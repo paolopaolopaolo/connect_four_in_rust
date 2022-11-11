@@ -51,7 +51,7 @@ impl fmt::Display for Gameboard {
         let start_string = match self.display_columns {
             true => String::from("\t0️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣\n"),
             false => match &self.display_cursor {
-                Some(state) => "\t".to_owned() + "  ".repeat(self.cursor_at as usize).as_str() + format!("{}", state).as_str() + "\n",
+                Some(state) => "\r\n\tPress n for new game and q to quit\n\n\t".to_owned() + "  ".repeat(self.cursor_at as usize).as_str() + format!("{}", state).as_str() + "\n",
                 _ => String::from("")
             },
         };
