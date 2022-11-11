@@ -38,12 +38,12 @@ fn board_render_thread (rx: Receiver<Message>) -> JoinHandle<(crossterm::Result<
             }
             print_board(&gameboard).unwrap();
             if gameboard.is_winner(&CellState::O) {
-                println!("{} wins!", CellState::O);
+                println!("\t{} wins!", CellState::O);
             } else if gameboard.is_winner(&CellState::X) {
-                println!("{} wins!", CellState::X);
+                println!("\t{} wins!", CellState::X);
             }
             else if gameboard.is_full() {
-                println!("Nobody won. Drop another piece to start a new game.");
+                println!("Nobody won. Move the cursor to start over.");
                 gameboard.clear();
             }
         }
@@ -51,7 +51,7 @@ fn board_render_thread (rx: Receiver<Message>) -> JoinHandle<(crossterm::Result<
     })
 }
 
-fn board_sender_thread (tx: Sender<Message>) -> crossterm::Result<()>{
+fn interaction_thread (tx: Sender<Message>) -> crossterm::Result<()>{
     loop {
         if poll(Duration::from_millis(500))? {
             let event = read()?;
@@ -75,20 +75,10 @@ fn board_sender_thread (tx: Sender<Message>) -> crossterm::Result<()>{
 
 fn main() {
     start_sequence();
-
-    terminal::enable_raw_mode();
-
+    terminal::enable_raw_mode().expect("error");
     let (tx, rx) = mpsc::channel();
     let render_thread = board_render_thread(rx);
-    board_sender_thread(tx.clone());
-    // let mut test = Gameboard::controlled_board();
-    // println!("{}", test);
-    // test.change_cursor(1, CellState::O);
-    // println!("{}", test);
-    // test.change_cursor(2, CellState::X);
-    // println!("{}", test);
-    // thread2.join().unwrap();
-    render_thread.join().unwrap();
-
-    // start_gameloop();
+    interaction_thread(tx.clone()).expect("error");
+    render_thread.join().unwrap().expect("error");
+    terminal::disable_raw_mode().expect("error");
 }
