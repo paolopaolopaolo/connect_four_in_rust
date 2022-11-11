@@ -43,7 +43,7 @@ fn board_render_thread (rx: Receiver<Message>) -> JoinHandle<(crossterm::Result<
                 println!("\t{} wins!", CellState::X);
             }
             else if gameboard.is_full() {
-                println!("Nobody won. Move the cursor to start over.");
+                println!("\tNobody won. Move the cursor to start over.");
                 gameboard.clear();
             }
         }
@@ -62,7 +62,7 @@ fn interaction_thread (tx: Sender<Message>) -> crossterm::Result<()>{
                     KeyCode::Enter => {tx.send(Message::PlacePiece).unwrap();},
                     KeyCode::Down => {tx.send(Message::PlacePiece).unwrap();},
                     KeyCode::Char('n') => {tx.send(Message::Reset).unwrap();},
-                    KeyCode::Char('q') => { terminal::disable_raw_mode().expect("error"); println!("\rYou can now press CTRL + C to exit."); break;},
+                    KeyCode::Char('q') => { terminal::disable_raw_mode().expect("error"); println!("\r\tYou can now press CTRL + C to exit."); break;},
                     _ => (),
 
                 },

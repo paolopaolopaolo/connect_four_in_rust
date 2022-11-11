@@ -122,7 +122,6 @@ impl Gameboard {
     pub fn change_cursor(&mut self, direction: i8) {
         if self.cursor_at + direction > -1 && self.cursor_at + direction < 6 {
             self.cursor_at += direction;
-  
         }
     }
 
@@ -234,6 +233,7 @@ impl Gameboard {
         };
     }
 
+    // TODO: make this animated with thread::sleep
     pub fn place_piece(&mut self, x: i64) -> bool {
         if x > 5 || x < 0 {
             return false;
@@ -241,7 +241,7 @@ impl Gameboard {
         // check if there are any open spaces
         let mut result = false;
         for row in [4, 3, 2, 1, 0] {
-            if self.piece_at(x, row).value() == CellState::Empty.value() {
+            if *self.piece_at(x, row) == CellState::Empty {
                 let piece_to_place = match &self.display_cursor {
                     Some(x) => {
                         match x {
