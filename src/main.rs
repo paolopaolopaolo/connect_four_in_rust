@@ -3,7 +3,7 @@ mod connect_four;
 use crossterm::event::{poll, read, Event, KeyCode};
 use crossterm::terminal;
 use std::thread::{self, JoinHandle};
-use std::time::{Duration};
+use std::time::Duration;
 use std::sync::mpsc::{self, Sender, Receiver};
 use connect_four::intro::start_sequence;
 use connect_four::gameboard::{Gameboard, CellState};
