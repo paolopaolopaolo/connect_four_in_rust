@@ -7,9 +7,10 @@
 **/
 
 use std::fmt;
+use std::rc::Rc;
 
 
-
+#[derive(Eq, PartialEq)]
 pub enum CellState {
     X,
     O,
@@ -40,14 +41,19 @@ fn is_row_full(row: &[CellState; 6]) -> bool {
 
 pub struct Gameboard {
     board: [[CellState; 6]; 5],
-    display_columns: bool 
+    display_columns: bool,
+    display_cursor: Option<CellState>,
+    pub cursor_at: i8,
 }
 
 impl fmt::Display for Gameboard {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {  
         let start_string = match self.display_columns {
             true => String::from("\t0️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣\n"),
-            false => String::from(""),
+            false => match &self.display_cursor {
+                Some(state) => "\t".to_owned() + "  ".repeat(self.cursor_at as usize).as_str() + format!("{}", state).as_str() + "\n",
+                _ => String::from("")
+            },
         };
         let printout = self.board.iter()
             .fold(start_string, |acc, next| acc + &format!("\t{}\n", next.iter().fold(
@@ -59,7 +65,7 @@ impl fmt::Display for Gameboard {
 
 impl Gameboard {
 
-    pub fn new() -> Gameboard {
+    pub fn new(display_columns: bool) -> Gameboard {
         Gameboard {
             board: [
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
@@ -68,7 +74,24 @@ impl Gameboard {
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
             ],
-            display_columns: true
+            display_columns: display_columns,
+            display_cursor: None,
+            cursor_at: 0,
+        }
+    }
+
+    pub fn controlled_board() -> Gameboard {
+        Gameboard {
+            board: [
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+                [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+            ],
+            display_columns: false,
+            display_cursor: Some(CellState::X),
+            cursor_at: 0,
         }
     }
 
@@ -81,7 +104,26 @@ impl Gameboard {
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::O, CellState::Empty, CellState::Empty],
                 [CellState::Empty, CellState::Empty, CellState::Empty, CellState::X, CellState::Empty, CellState::Empty],
             ],
-            display_columns: false
+            display_columns: false,
+            display_cursor: None,
+            cursor_at: 0,
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.board = [
+            [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+            [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+            [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+            [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+            [CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty, CellState::Empty],
+        ];
+    }
+
+    pub fn change_cursor(&mut self, direction: i8) {
+        if self.cursor_at + direction > -1 && self.cursor_at + direction < 6 {
+            self.cursor_at += direction;
+  
         }
     }
 
@@ -182,7 +224,18 @@ impl Gameboard {
             self.piece_at(x - 3, y + 3).value() == player.value();
     }
 
-    pub fn place_piece(&mut self, x: i64, player: &CellState) -> bool {
+    fn swap_piece(&mut self) {
+        self.display_cursor = match &self.display_cursor {
+            Some(x) => match x {
+                CellState::X => Some(CellState::O),
+                CellState::O => Some(CellState::X),
+                _ => Some(CellState::Empty),
+            },
+            _ => Some(CellState::Empty),
+        };
+    }
+
+    pub fn place_piece(&mut self, x: i64) -> bool {
         if x > 5 || x < 0 {
             return false;
         }
@@ -190,9 +243,14 @@ impl Gameboard {
         let mut result = false;
         for row in [4, 3, 2, 1, 0] {
             if self.piece_at(x, row).value() == CellState::Empty.value() {
-                let piece_to_place = match player {
-                    CellState::X => CellState::X,
-                    CellState::O => CellState::O,
+                let piece_to_place = match &self.display_cursor {
+                    Some(x) => {
+                        match x {
+                            CellState::X => CellState::X,
+                            CellState::O => CellState::O,
+                    _ => return false,
+                        }
+                    }
                     _ => return false,
                 };
                 self.board[row as usize][x as usize] = piece_to_place;
@@ -200,6 +258,7 @@ impl Gameboard {
                 break;
             } 
         }
+        self.swap_piece();
         return result;
     }
 
