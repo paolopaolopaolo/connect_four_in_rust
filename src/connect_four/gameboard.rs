@@ -7,7 +7,10 @@
 **/
 
 use std::fmt;
-
+use std::thread;
+use std::time::Duration;
+use crossterm::terminal;
+use super::utility::clear_all;
 
 #[derive(Eq, PartialEq)]
 pub enum CellState {
@@ -233,32 +236,62 @@ impl Gameboard {
         };
     }
 
-    // TODO: make this animated with thread::sleep
-    pub fn place_piece(&mut self, x: i64) -> bool {
+    fn get_player_from_display_cursor(&self) -> CellState {
+        match &self.display_cursor {
+            Some(x) => match x {
+                CellState::O => CellState::O,
+                CellState::X => CellState::X,
+                CellState::Empty => CellState::Empty,
+            },
+            _ => CellState::Empty,
+        }
+    }
+
+    fn print_self(&self) {
+        clear_all();
+        terminal::disable_raw_mode();
+        println!("{}", self);
+        terminal::enable_raw_mode();
+        thread::sleep(Duration::from_millis(20));
+    }
+
+    pub fn place_piece(&mut self, x: i64) {
         if x > 5 || x < 0 {
-            return false;
+            return;
         }
-        // check if there are any open spaces
-        let mut result = false;
-        for row in [4, 3, 2, 1, 0] {
-            if *self.piece_at(x, row) == CellState::Empty {
-                let piece_to_place = match &self.display_cursor {
-                    Some(x) => {
-                        match x {
-                            CellState::X => CellState::X,
-                            CellState::O => CellState::O,
-                    _ => return false,
-                        }
-                    }
-                    _ => return false,
-                };
-                self.board[row as usize][x as usize] = piece_to_place;
-                result = true;
-                break;
-            } 
+        let mut row = 0;
+        while row < 5 && *self.piece_at(x, row) == CellState::Empty {
+            let player = self.get_player_from_display_cursor();
+            self.board[row as usize][x as usize] = player;
+            self.print_self();
+            if row + 1 < 5 {
+                if *self.piece_at(x, row + 1) == CellState::Empty {
+                    self.board[row as usize][x as usize] = CellState::Empty;
+                    self.print_self();
+                }
+            }
+            row += 1;
         }
+        // // check if there are any open spaces
+        // let mut result = false;
+        // for row in [4, 3, 2, 1, 0] {
+        //     if *self.piece_at(x, row) == CellState::Empty {
+        //         let piece_to_place = match &self.display_cursor {
+        //             Some(x) => {
+        //                 match x {
+        //                     CellState::X => CellState::X,
+        //                     CellState::O => CellState::O,
+        //             _ => return false,
+        //                 }
+        //             }
+        //             _ => return false,
+        //         };
+        //         self.board[row as usize][x as usize] = piece_to_place;
+        //         result = true;
+        //         break;
+        //     } 
+        // }
         self.swap_piece();
-        return result;
     }
 
     pub fn is_full(&self) -> bool {

@@ -1,4 +1,3 @@
-
 mod connect_four;
 use crossterm::event::{poll, read, Event, KeyCode};
 use crossterm::terminal;
