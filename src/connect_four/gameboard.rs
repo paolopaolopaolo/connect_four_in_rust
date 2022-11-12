@@ -249,14 +249,20 @@ impl Gameboard {
 
     fn print_self(&self) {
         clear_all();
-        terminal::disable_raw_mode();
+        terminal::disable_raw_mode().expect("error");
         println!("{}", self);
-        terminal::enable_raw_mode();
+        terminal::enable_raw_mode().expect("error");
         thread::sleep(Duration::from_millis(20));
     }
 
+    fn is_col_clear(&self, x: i64) -> bool {
+        (0..5).fold(false, |acc, next| {
+            acc || *self.piece_at(x, next) == CellState::Empty
+        })
+    }
+
     pub fn place_piece(&mut self, x: i64) {
-        if x > 5 || x < 0 {
+        if (x > 5 || x < 0) || !self.is_col_clear(x) {
             return;
         }
         let mut row = 0;
