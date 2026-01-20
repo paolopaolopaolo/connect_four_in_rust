@@ -1,12 +1,11 @@
 mod connect_four;
-use crossterm::event::{poll, read, Event, KeyCode};
-use crossterm::terminal;
-use std::thread::{self, JoinHandle};
-use std::time::Duration;
-use std::sync::mpsc::{self, Sender, Receiver};
 use connect_four::intro::start_sequence;
 use connect_four::gameboard::{Gameboard, CellState};
-use connect_four::utility::clear_all;
+use crossterm::event::{poll, read, Event, KeyCode};
+use crossterm::terminal;
+use std::sync::mpsc::{self, Sender, Receiver};
+use std::thread::{self, JoinHandle};
+use std::time::Duration;
 
 enum Message {
     MoveCursor(i8),
@@ -14,28 +13,23 @@ enum Message {
     Reset
 }
 
-fn print_board(gameboard: &Gameboard) -> crossterm::Result<()> {
-    terminal::disable_raw_mode().expect("error");
-    clear_all();
-    println!("{}", gameboard);
-    terminal::enable_raw_mode().expect("error");
-    Ok(())
-}
-
-fn board_render_thread (rx: Receiver<Message>) -> JoinHandle<(crossterm::Result<()>)> {
+fn board_render_thread (rx: Receiver<Message>) -> JoinHandle<crossterm::Result<()>> {
     thread::spawn(move || {
         let mut gameboard = Gameboard::controlled_board();
         gameboard.change_cursor(0);
-        print_board(&gameboard).unwrap();
+        gameboard.print_self();
         loop {
             let message = rx.recv().unwrap();
             match message {
                 Message::MoveCursor(x) => gameboard.change_cursor(x),
-                Message::PlacePiece => { gameboard.place_piece(gameboard.cursor_at as i64); },
+                Message::PlacePiece => { 
+                    if !gameboard.has_winner() {
+                        gameboard.place_piece(gameboard.cursor_at as i64); 
+                    }
+                },
                 Message::Reset => {gameboard = Gameboard::controlled_board(); }
-                _ => ()
             }
-            print_board(&gameboard).unwrap();
+            gameboard.print_self();
             if gameboard.is_winner(&CellState::O) {
                 println!("\t{} wins!", CellState::O);
             } else if gameboard.is_winner(&CellState::X) {

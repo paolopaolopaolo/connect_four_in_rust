@@ -38,7 +38,7 @@ impl CellState {
 
 fn is_row_full(row: &[CellState; 6]) -> bool {
     row.iter()
-        .fold(true, |acc, next| acc && next.value() != CellState::Empty.value())
+        .fold(true, |acc, next| acc && *next != CellState::Empty)
 }
 
 pub struct Gameboard {
@@ -122,6 +122,10 @@ impl Gameboard {
         ];
     }
 
+    pub fn has_winner(&self) -> bool {
+        self.is_winner(&CellState::O) || self.is_winner(&CellState::X)
+    }
+
     pub fn change_cursor(&mut self, direction: i8) {
         if self.cursor_at + direction > -1 && self.cursor_at + direction < 6 {
             self.cursor_at += direction;
@@ -138,10 +142,10 @@ impl Gameboard {
         }
 
         return 
-            self.piece_at(x, y).value()     == player.value() &&
-            self.piece_at(x, y - 1).value() == player.value() &&
-            self.piece_at(x, y - 2).value() == player.value() &&
-            self.piece_at(x, y - 3).value() == player.value();
+            self.piece_at(x, y)     == player &&
+            self.piece_at(x, y - 1) == player &&
+            self.piece_at(x, y - 2) == player &&
+            self.piece_at(x, y - 3) == player;
     }
 
     fn check_down(&self, x: i64, y: i64, player: &CellState) -> bool {
@@ -149,10 +153,10 @@ impl Gameboard {
             return false;
         }
         return 
-            self.piece_at(x, y).value() == player.value() &&
-            self.piece_at(x, y + 1).value() == player.value() &&
-            self.piece_at(x, y + 2).value() == player.value() &&
-            self.piece_at(x, y + 3).value() == player.value();
+            self.piece_at(x, y) == player &&
+            self.piece_at(x, y + 1) == player &&
+            self.piece_at(x, y + 2) == player &&
+            self.piece_at(x, y + 3) == player;
     }
 
     fn check_left(&self, x: i64, y: i64, player: &CellState) -> bool {
@@ -161,10 +165,10 @@ impl Gameboard {
         }
 
         return 
-            self.piece_at(x, y).value() == player.value() &&
-            self.piece_at(x - 1, y).value() == player.value() &&
-            self.piece_at(x - 2, y).value() == player.value() &&
-            self.piece_at(x - 3, y).value() == player.value();
+            self.piece_at(x, y) == player &&
+            self.piece_at(x - 1, y) == player &&
+            self.piece_at(x - 2, y) == player &&
+            self.piece_at(x - 3, y) == player;
     }
 
     fn check_right(&self, x: i64, y: i64, player: &CellState) -> bool {
@@ -172,10 +176,10 @@ impl Gameboard {
             return false
         }
         return 
-            self.piece_at(x, y).value() == player.value() &&
-            self.piece_at(x + 1, y).value() == player.value() &&
-            self.piece_at(x + 2, y).value() == player.value() &&
-            self.piece_at(x + 3, y).value() == player.value();
+            self.piece_at(x, y) == player &&
+            self.piece_at(x + 1, y) == player &&
+            self.piece_at(x + 2, y) == player &&
+            self.piece_at(x + 3, y) == player;
     }
 
     fn check_up_right(&self, x: i64, y: i64, player: &CellState) -> bool {
@@ -184,10 +188,10 @@ impl Gameboard {
         }
 
         return 
-            self.piece_at(x, y).value() == player.value() &&
-            self.piece_at(x + 1, y - 1).value() == player.value() &&
-            self.piece_at(x + 2, y - 2).value() == player.value() &&
-            self.piece_at(x + 3, y - 3).value() == player.value();
+            self.piece_at(x, y) == player &&
+            self.piece_at(x + 1, y - 1) == player &&
+            self.piece_at(x + 2, y - 2) == player &&
+            self.piece_at(x + 3, y - 3) == player;
     }
 
     fn check_up_left(&self, x: i64, y: i64, player: &CellState) -> bool {
@@ -195,10 +199,10 @@ impl Gameboard {
             return false
         }
         return 
-            self.piece_at(x, y).value() == player.value() &&
-            self.piece_at(x - 1, y - 1).value() == player.value() &&
-            self.piece_at(x - 2, y - 2).value() == player.value() &&
-            self.piece_at(x - 3, y - 3).value() == player.value();
+            self.piece_at(x, y) == player &&
+            self.piece_at(x - 1, y - 1) == player &&
+            self.piece_at(x - 2, y - 2) == player &&
+            self.piece_at(x - 3, y - 3) == player;
     }
 
     fn check_down_right(&self, x: i64, y: i64, player: &CellState) -> bool {
@@ -207,10 +211,10 @@ impl Gameboard {
         }
 
         return 
-            self.piece_at(x, y).value() == player.value() &&
-            self.piece_at(x + 1, y + 1).value() == player.value() &&
-            self.piece_at(x + 2, y + 2).value() == player.value() &&
-            self.piece_at(x + 3, y + 3).value() == player.value();
+            self.piece_at(x, y) == player &&
+            self.piece_at(x + 1, y + 1) == player &&
+            self.piece_at(x + 2, y + 2) == player &&
+            self.piece_at(x + 3, y + 3) == player;
     }
 
     fn check_down_left(&self, x: i64, y: i64, player: &CellState) -> bool {
@@ -219,10 +223,10 @@ impl Gameboard {
         }
 
         return 
-            self.piece_at(x, y).value() == player.value() &&
-            self.piece_at(x - 1, y + 1).value() == player.value() &&
-            self.piece_at(x - 2, y + 2).value() == player.value() &&
-            self.piece_at(x - 3, y + 3).value() == player.value();
+            self.piece_at(x, y) == player &&
+            self.piece_at(x - 1, y + 1) == player &&
+            self.piece_at(x - 2, y + 2) == player &&
+            self.piece_at(x - 3, y + 3) == player;
     }
 
     fn swap_piece(&mut self) {
@@ -247,7 +251,7 @@ impl Gameboard {
         }
     }
 
-    fn print_self(&self) {
+    pub fn print_self(&self) {
         clear_all();
         terminal::disable_raw_mode().expect("error");
         println!("{}", self);
@@ -278,25 +282,6 @@ impl Gameboard {
             }
             row += 1;
         }
-        // // check if there are any open spaces
-        // let mut result = false;
-        // for row in [4, 3, 2, 1, 0] {
-        //     if *self.piece_at(x, row) == CellState::Empty {
-        //         let piece_to_place = match &self.display_cursor {
-        //             Some(x) => {
-        //                 match x {
-        //                     CellState::X => CellState::X,
-        //                     CellState::O => CellState::O,
-        //             _ => return false,
-        //                 }
-        //             }
-        //             _ => return false,
-        //         };
-        //         self.board[row as usize][x as usize] = piece_to_place;
-        //         result = true;
-        //         break;
-        //     } 
-        // }
         self.swap_piece();
     }
 
@@ -311,7 +296,7 @@ impl Gameboard {
         while cursor.0 < 6 {
             while cursor.1 > 0 {
                 let player_at_cursor = self.piece_at(cursor.0, cursor.1);
-                if player.value() == player_at_cursor.value() {
+                if player == player_at_cursor {
                     let checks: [bool; 8] = [
                         self.check_up(cursor.0, cursor.1, player),
                         self.check_down(cursor.0, cursor.1, player),
