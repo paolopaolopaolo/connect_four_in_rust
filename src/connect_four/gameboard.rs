@@ -133,7 +133,7 @@ impl Gameboard {
     }
 
     fn piece_at(&self, x: i64, y: i64) -> &CellState {
-        &self.board[(y as usize)][(x as usize)]
+        &self.board[y as usize][x as usize]
     }
 
     fn check_up(&self, x: i64, y: i64, player: &CellState) -> bool {
